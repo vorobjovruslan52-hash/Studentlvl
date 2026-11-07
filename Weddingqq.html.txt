@@ -1,0 +1,786 @@
+﻿<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Особистий Кабінет Студента</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #f4f7fe;
+            --card-bg: #ffffff;
+            --primary-color: #4318ff;
+            --primary-hover: #3311db;
+            --secondary-color: #6ad2ff;
+            --text-dark: #2b3674;
+            --text-gray: #a3edee;
+            --text-muted: #707ebe;
+            --border-color: #e0e5f2;
+            --success-color: #01b574;
+            --warning-color: #ffb547;
+            --danger-color: #ee5d50;
+            --shadow: 0px 18px 40px rgba(112, 144, 176, 0.12);
+            --radius: 16px;
+        }
+
+
+        [data-theme="dark"] {
+            --bg-color: #0b1437;
+            --card-bg: #111c44;
+            --text-dark: #ffffff;
+            --text-muted: #a3edee;
+            --border-color: #222e5e;
+            --shadow: 0px 18px 40px rgba(0, 0, 0, 0.4);
+        }
+
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-dark);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            background: var(--card-bg);
+            padding: 20px 30px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+        }
+
+
+        .header-title h1 {
+            font-size: 24px;
+            color: var(--text-dark);
+        }
+
+
+        .header-title p {
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+
+        .theme-toggle {
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            padding: 10px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            color: var(--text-dark);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+
+        /* Status Banner */
+        .status-banner {
+            background: linear-gradient(135deg, var(--primary-color), #868CFF);
+            color: white;
+            padding: 20px 30px;
+            border-radius: var(--radius);
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow);
+        }
+
+
+        .status-info h2 {
+            font-size: 20px;
+            margin-bottom: 5px;
+        }
+
+
+        .status-info p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+
+        .timer-badge {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+
+        /* Grid Layout */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 25px;
+        }
+
+
+        @media (min-width: 992px) {
+            .dashboard-grid {
+                grid-template-columns: 2fr 1fr;
+            }
+        }
+
+
+        .card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 25px;
+            box-shadow: var(--shadow);
+            margin-bottom: 25px;
+        }
+
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+
+        .card-title i {
+            color: var(--primary-color);
+        }
+
+
+        /* Schedule Tabs & Table */
+        .day-tabs {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+
+
+        .day-tab {
+            padding: 8px 16px;
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--text-muted);
+            white-space: nowrap;
+        }
+
+
+        .day-tab.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+
+        .schedule-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+
+        .schedule-table th, .schedule-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+
+        .schedule-table th {
+            color: var(--text-muted);
+            font-size: 13px;
+            text-transform: uppercase;
+        }
+
+
+        .lesson-num {
+            font-weight: bold;
+            color: var(--primary-color);
+            width: 40px;
+        }
+
+
+        .lesson-time {
+            color: var(--text-muted);
+            font-size: 14px;
+            width: 120px;
+        }
+
+
+        .teacher-tag {
+            display: inline-block;
+            font-size: 12px;
+            background: var(--bg-color);
+            padding: 2px 8px;
+            border-radius: 6px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+
+        /* To-Do List */
+        .todo-input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+
+        .todo-input-group input {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            background: var(--bg-color);
+            color: var(--text-dark);
+            outline: none;
+        }
+
+
+        .btn-add {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+
+        .btn-add:hover {
+            background: var(--primary-hover);
+        }
+
+
+        .todo-list {
+            list-style: none;
+        }
+
+
+        .todo-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+
+        .todo-item.completed span {
+            text-decoration: line-through;
+            color: var(--text-muted);
+        }
+
+
+        .todo-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+
+        .todo-left input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+
+        .btn-delete {
+            background: none;
+            border: none;
+            color: var(--danger-color);
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+
+        /* Calculator Feature */
+        .calc-form {
+            display: grid;
+            grid-template-columns: 2fr 1fr auto;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+
+        .calc-form input {
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background: var(--bg-color);
+            color: var(--text-dark);
+        }
+
+
+        .grade-list {
+            max-height: 150px;
+            overflow-y: auto;
+            margin-bottom: 15px;
+        }
+
+
+        .grade-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px dashed var(--border-color);
+            font-size: 14px;
+        }
+
+
+        .gpa-display {
+            text-align: center;
+            padding: 15px;
+            background: var(--bg-color);
+            border-radius: 10px;
+        }
+
+
+        .gpa-val {
+            font-size: 28px;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+
+        /* Notes Feature */
+        .notes-area {
+            width: 100%;
+            height: 120px;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            background: var(--bg-color);
+            color: var(--text-dark);
+            resize: none;
+            outline: none;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <div class="header-title">
+                <h1>Навчальний Портал</h1>
+                <p>Розклад, завдання та особистий прогрес</p>
+            </div>
+            <button class="theme-toggle" onclick="toggleTheme()">
+                <i class="fa-solid fa-moon"></i> <span id="theme-text">Темна тема</span>
+            </button>
+        </header>
+
+
+        <!-- Status Banner (Feature 1: Status & Ring Timer) -->
+        <div class="status-banner">
+            <div class="status-info">
+                <h2 id="current-status-title">Завантаження розкладу...</h2>
+                <p id="current-status-desc">Визначаємо поточну пару або перерву</p>
+            </div>
+            <div class="timer-badge" id="timer-badge">--:--</div>
+        </div>
+
+
+        <div class="dashboard-grid">
+            <!-- Left Column -->
+            <div class="main-column">
+                <!-- Schedule Card -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i class="fa-solid fa-calendar-days"></i>
+                            <span>Розклад Занять</span>
+                        </div>
+                    </div>
+                    <div class="day-tabs">
+                        <button class="day-tab active" onclick="showDay('Mon')">Пн</button>
+                        <button class="day-tab" onclick="showDay('Tue')">Вт</button>
+                        <button class="day-tab" onclick="showDay('Wed')">Ср</button>
+                        <button class="day-tab" onclick="showDay('Thu')">Чт</button>
+                        <button class="day-tab" onclick="showDay('Fri')">Пт</button>
+                    </div>
+                    <table class="schedule-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Час</th>
+                                <th>Предмет / Викладач</th>
+                            </tr>
+                        </thead>
+                        <tbody id="schedule-body">
+                            <!-- Populated dynamically via JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+
+
+                <!-- To-Do Card -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i class="fa-solid fa-list-check"></i>
+                            <span>Список Завдань (To-Do)</span>
+                        </div>
+                    </div>
+                    <div class="todo-input-group">
+                        <input type="text" id="todo-input" placeholder="Додати нове завдання...">
+                        <button class="btn-add" onclick="addTodo()"><i class="fa-solid fa-plus"></i> Додати</button>
+                    </div>
+                    <ul class="todo-list" id="todo-list">
+                        <!-- Populated dynamically -->
+                    </ul>
+                </div>
+            </div>
+
+
+            <!-- Right Column -->
+            <div class="side-column">
+                <!-- Feature 2: Grade & GPA Calculator -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i class="fa-solid fa-calculator"></i>
+                            <span>Калькулятор Середнього Бала</span>
+                        </div>
+                    </div>
+                    <div class="calc-form">
+                        <input type="text" id="subject-name" placeholder="Предмет">
+                        <input type="number" id="subject-grade" min="1" max="12" placeholder="Оцінка">
+                        <button class="btn-add" onclick="addGrade()"><i class="fa-solid fa-check"></i></button>
+                    </div>
+                    <div class="grade-list" id="grade-list"></div>
+                    <div class="gpa-display">
+                        <div style="font-size: 12px; color: var(--text-muted);">СЕРЕДНІЙ БАЛ</div>
+                        <div class="gpa-val" id="gpa-val">0.00</div>
+                    </div>
+                </div>
+
+
+                <!-- Feature 3: Quick Notes & Reminders -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i class="fa-solid fa-note-sticky"></i>
+                            <span>Швидкі Нотатки</span>
+                        </div>
+                    </div>
+                    <textarea class="notes-area" id="notes-input" placeholder="Запишіть важливу інформацію, посилання або нагадування..." oninput="saveNotes()"></textarea>
+                    <div style="font-size: 12px; color: var(--text-muted); text-align: right;" id="notes-status">Збережено локально</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        // Data Structure for Schedule (Source from image)
+        const scheduleData = {
+            Mon: [
+                { num: 1, time: "08.30-09.50", subject: "Укр.літ", teacher: "Миронюк" },
+                { num: 1, time: "08.30-09.50", subject: "Хімія", teacher: "Зіняч" },
+                { num: 2, time: "10.00-11.20", subject: "Географія", teacher: "Малимон" },
+                { num: 2, time: "10.00-11.20", subject: "Фізика, астрономія", teacher: "Грицик" },
+                { num: 3, time: "11.30-12.50", subject: "Математика", teacher: "Герасимчук" }
+            ],
+            Tue: [
+                { num: 1, time: "08.30-09.50", subject: "Фізична культура", teacher: "Турчик" },
+                { num: 2, time: "10.00-11.20", subject: "Укр.мова", teacher: "Миронюк" },
+                { num: 3, time: "11.30-12.50", subject: "Біологія, екологія", teacher: "Зіняч" }
+            ],
+            Wed: [
+                { num: 1, time: "08.30-09.50", subject: "Хімія", teacher: "Зіняч" },
+                { num: 2, time: "10.00-11.20", subject: "Фізика, астрономія", teacher: "Грицик" },
+                { num: 3, time: "11.30-12.50", subject: "Інформатика", teacher: "Гребіненко" }
+            ],
+            Thu: [
+                { num: 1, time: "08.30-09.50", subject: "Заруб.літ", teacher: "Ткачук" },
+                { num: 2, time: "10.00-11.20", subject: "Історія: Україна і світ", teacher: "Коняхін" },
+                { num: 3, time: "11.30-12.50", subject: "Іноземна мова", teacher: "Музичук" }
+            ],
+            Fri: [
+                { num: 1, time: "08.30-09.50", subject: "Укр.літ", teacher: "Миронюк" },
+                { num: 2, time: "10.00-11.20", subject: "Захист України", teacher: "Шмігель" },
+                { num: 3, time: "11.30-12.50", subject: "Математика", teacher: "Герасимчук" },
+                { num: 4, time: "13.00-14.20", subject: "Фізика, астрономія", teacher: "Грицик" }
+            ]
+        };
+
+
+        let currentDayKey = 'Mon';
+
+
+        // Render Schedule Table
+        function showDay(dayKey) {
+            currentDayKey = dayKey;
+            document.querySelectorAll('.day-tab').forEach((tab, index) => {
+                const keys = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
+                if (keys[index] === dayKey) tab.classList.add('active');
+                else tab.classList.remove('active');
+            });
+
+
+            const tbody = document.getElementById('schedule-body');
+            tbody.innerHTML = '';
+            const lessons = scheduleData[dayKey] || [];
+
+
+            lessons.forEach(l => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="lesson-num">${l.num}</td>
+                    <td class="lesson-time">${l.time}</td>
+                    <td>
+                        <strong>${l.subject}</strong><br>
+                        <span class="teacher-tag"><i class="fa-solid fa-user-graduate"></i> ${l.teacher}</span>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+
+        // Feature 1: Dynamic Status & Timer Tracker
+        function updateLiveTracker() {
+            const now = new Date();
+            const currentHours = now.getHours();
+            const currentMinutes = now.getMinutes();
+            const nowSec = currentHours * 3600 + currentMinutes * 60 + now.getSeconds();
+
+
+            const pairs = [
+                { num: 1, start: 8*3600 + 30*60, end: 9*3600 + 50*60 },
+                { num: 2, start: 10*3600, end: 11*3600 + 20*60 },
+                { num: 3, start: 11*3600 + 30*60, end: 12*3600 + 50*60 },
+                { num: 4, start: 13*3600, end: 14*3600 + 20*60 }
+            ];
+
+
+            let activePair = null;
+            let nextBreak = null;
+
+
+            for (let i = 0; i < pairs.length; i++) {
+                if (nowSec >= pairs[i].start && nowSec <= pairs[i].end) {
+                    activePair = pairs[i];
+                    break;
+                }
+                if (i < pairs.length - 1 && nowSec > pairs[i].end && nowSec < pairs[i+1].start) {
+                    nextBreak = { end: pairs[i+1].start, nextNum: pairs[i+1].num };
+                    break;
+                }
+            }
+
+
+            const titleEl = document.getElementById('current-status-title');
+            const descEl = document.getElementById('current-status-desc');
+            const timerEl = document.getElementById('timer-badge');
+
+
+            if (activePair) {
+                const diff = activePair.end - nowSec;
+                const m = Math.floor(diff / 60);
+                const s = diff % 60;
+                titleEl.innerText = `Зараз іде ${activePair.num}-ша пара`;
+                descEl.innerText = `До кінця пари залишилося:`;
+                timerEl.innerText = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+            } else if (nextBreak) {
+                const diff = nextBreak.end - nowSec;
+                const m = Math.floor(diff / 60);
+                const s = diff % 60;
+                titleEl.innerText = `Перерва перед ${nextBreak.nextNum}-ю парою`;
+                descEl.innerText = `До початку пари залишилося:`;
+                timerEl.innerText = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+            } else {
+                titleEl.innerText = `Заняття завершені або ще не почалися`;
+                descEl.innerText = `Гарного відпочинку!`;
+                timerEl.innerText = `--:--`;
+            }
+        }
+
+
+        // To-Do Feature
+        let todos = JSON.parse(localStorage.getItem('student_todos')) || [
+            { text: "Підготувати лабу з Інформатики", completed: false },
+            { text: "Прочитати укр.літ (Миронюк)", completed: true }
+        ];
+
+
+        function renderTodos() {
+            const list = document.getElementById('todo-list');
+            list.innerHTML = '';
+            todos.forEach((todo, idx) => {
+                const li = document.createElement('li');
+                li.className = `todo-item ${todo.completed ? 'completed' : ''}`;
+                li.innerHTML = `
+                    <div class="todo-left">
+                        <input type="checkbox" ${todo.completed ? 'checked' : ''} onchange="toggleTodo(${idx})">
+                        <span>${todo.text}</span>
+                    </div>
+                    <button class="btn-delete" onclick="deleteTodo(${idx})"><i class="fa-solid fa-trash"></i></button>
+                `;
+                list.appendChild(li);
+            });
+            localStorage.setItem('student_todos', JSON.stringify(todos));
+        }
+
+
+        function addTodo() {
+            const input = document.getElementById('todo-input');
+            if (input.value.trim() !== '') {
+                todos.push({ text: input.value.trim(), completed: false });
+                input.value = '';
+                renderTodos();
+            }
+        }
+
+
+        function toggleTodo(index) {
+            todos[index].completed = !todos[index].completed;
+            renderTodos();
+        }
+
+
+        function deleteTodo(index) {
+            todos.splice(index, 1);
+            renderTodos();
+        }
+
+
+        // Feature 2: GPA Calculator
+        let grades = JSON.parse(localStorage.getItem('student_grades')) || [
+            { subject: "Математика", grade: 11 },
+            { subject: "Хімія", grade: 10 }
+        ];
+
+
+        function renderGrades() {
+            const list = document.getElementById('grade-list');
+            list.innerHTML = '';
+            let total = 0;
+
+
+            grades.forEach((g, i) => {
+                total += Number(g.grade);
+                const div = document.createElement('div');
+                div.className = 'grade-item';
+                div.innerHTML = `
+                    <span>${g.subject}</span>
+                    <strong>${g.grade} <i class="fa-solid fa-xmark" style="color:var(--danger-color); cursor:pointer; margin-left:5px;" onclick="deleteGrade(${i})"></i></strong>
+                `;
+                list.appendChild(div);
+            });
+
+
+            const gpa = grades.length > 0 ? (total / grades.length).toFixed(2) : '0.00';
+            document.getElementById('gpa-val').innerText = gpa;
+            localStorage.setItem('student_grades', JSON.stringify(grades));
+        }
+
+
+        function addGrade() {
+            const sub = document.getElementById('subject-name').value.trim();
+            const gr = document.getElementById('subject-grade').value;
+            if (sub && gr) {
+                grades.push({ subject: sub, grade: Number(gr) });
+                document.getElementById('subject-name').value = '';
+                document.getElementById('subject-grade').value = '';
+                renderGrades();
+            }
+        }
+
+
+        function deleteGrade(idx) {
+            grades.splice(idx, 1);
+            renderGrades();
+        }
+
+
+        // Feature 3: Quick Notes
+        function loadNotes() {
+            const notes = localStorage.getItem('student_notes') || '';
+            document.getElementById('notes-input').value = notes;
+        }
+
+
+        function saveNotes() {
+            const val = document.getElementById('notes-input').value;
+            localStorage.setItem('student_notes', val);
+            document.getElementById('notes-status').innerText = 'Збережено автоматично';
+        }
+
+
+        // Theme Toggle
+        function toggleTheme() {
+            const isDark = document.body.getAttribute('data-theme') === 'dark';
+            if (isDark) {
+                document.body.removeAttribute('data-theme');
+                document.getElementById('theme-text').innerText = 'Темна тема';
+            } else {
+                document.body.setAttribute('data-theme', 'dark');
+                document.getElementById('theme-text').innerText = 'Світла тема';
+            }
+        }
+
+
+        // Auto select current day tab
+        function initDay() {
+            const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            const today = days[new Date().getDay()];
+            if (scheduleData[today]) {
+                showDay(today);
+            } else {
+                showDay('Mon');
+            }
+        }
+
+
+        // Initializer
+        window.onload = function() {
+            initDay();
+            renderTodos();
+            renderGrades();
+            loadNotes();
+            updateLiveTracker();
+            setInterval(updateLiveTracker, 1000);
+        };
+    </script>
+</body>
+</html>
